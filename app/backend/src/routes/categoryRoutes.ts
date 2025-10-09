@@ -3,17 +3,19 @@ import {
   createCategory,
   getCategoriesByRestaurant,
 } from "../controllers/categoryController";
-import { verifyToken, verifyRole } from "../middlewares/verifyMiddlewares";
+import { verifyToken, verifyRoles } from "../middlewares/verifyMiddlewares";
 import { upload } from "../utils/multerHelper";
+import { getItemsByCategory } from "../controllers/foodItemController";
 const router = Router();
 // createCategory
 router.post(
   "/create",
   verifyToken,
-  verifyRole("owner"),
+  verifyRoles("owner"),
   upload.single("image"),
   createCategory
 );
 router.get("/:restaurantId", getCategoriesByRestaurant);
+router.get("/:categoryId/items", getItemsByCategory);
 
 export default router;

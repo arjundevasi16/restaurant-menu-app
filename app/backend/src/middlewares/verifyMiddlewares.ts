@@ -1,27 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import CustomError from "../utils/CustomError";
+
 export interface AuthRequest extends Request {
-  user?: any | JwtPayload;
+  user?: JwtPayload & { role?: string };
 }
-export const verifyToken = async (
+
+export const verifyToken = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    console.log("jwt key", process.env.JWT_SECRET);
+    console.log("req.cookies: ", req.cookies);
+    const accessToken = req.cookies.access_token;
+    console.log("accessToken: ", accessToken);
+    console.log();
+    if (!accessToken) throw new CustomError("Unauthorized", 401);
 
-    const authHeader = req.headers["authorization"];
-    console.log("authHeader: ", authHeader);
-
-    if (!authHeader) throw new CustomError("Token not provided", 401);
-    const token = authHeader?.split(" ")[1];
-    console.log("token: ", token);
-    if (!token) throw new CustomError("Invalid token format", 401);
-    const decode = jwt.verify(token, process.env.JWT_SECRET as string);
-    console.log("decode: ", decode);
-    req.user = decode;
+    const decoded = jwt.verify(
+      accessToken,
+      process.env.JWT_SECRET!
+    ) as JwtPayload;
+    req.user = decoded;
 
     next();
   } catch (error) {
@@ -29,17 +30,16 @@ export const verifyToken = async (
       return next(new CustomError("Token expired", 401));
     }
     if (error instanceof jwt.JsonWebTokenError) {
-      console.log("error", error);
-
       return next(new CustomError("Invalid token", 401));
     }
     next(error);
   }
 };
-export const verifyRole = (role: string) => {
+
+export const verifyRoles = (...roles: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (req.user?.role !== role) {
-      return next(new CustomError("Forbidden", 403));
+    if (!req.user || !req.user.role || !roles.includes(req.user.role)) {
+      return next(new CustomError("Forbidden: Insufficient role", 403));
     }
     next();
   };

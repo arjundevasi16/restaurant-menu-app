@@ -31,9 +31,12 @@ const errorHandler = (
         message = "A database error occurred.";
     }
   }
-
-  console.error(err);
-  res.status(statusCode).json({ message });
+  console.error("🔥 Error:", err);
+  const isDev = process.env.NODE_ENV !== "production";
+  res.status(statusCode).json({
+    message,
+    ...(isDev && { stack: (err as Error).stack }),
+  });
 };
 
 export default errorHandler;

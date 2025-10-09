@@ -1,0 +1,23 @@
+{
+  "name": "restaurant-menu",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace apps/frontend run dev",
+    "dev:backend": "npm --workspace apps/backend run dev",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "build:frontend": "npm --workspace apps/frontend run build",
+    "start:backend": "npm --workspace apps/backend run start",
+    "lint:frontend": "npm --workspace apps/frontend run lint",
+    "format:frontend": "npm --workspace apps/frontend run format",
+    "test:frontend": "npm --workspace apps/frontend run test:unit",
+    "test:e2e": "npm --workspace apps/frontend run test:e2e"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
