@@ -5,7 +5,9 @@ export const getRestaurants = async (
   res: Response,
   next: NextFunction
 ) => {
-  const [rows] = await db.query("SELECT id, name, address FROM restaurants");
+  const [rows] = await db.query(
+    "SELECT r.name, r.address users.name FROM restaurants as r JOIN  users WHERE id=owner_id"
+  );
 
   res.status(200).json({
     success: true,
